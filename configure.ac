@@ -20,25 +20,15 @@ AC_PROG_CC
 # set the $host environment variable so we can make decisions on Windows or Linux
 AC_CANONICAL_HOST
 
-# These should not be used, it is silly to look at the current system as you may not be
-# compiling for the system the configure script is running on.
-if test "x${OS}" = "xWindows_NT" ; then
-	AC_DEFINE(COMPILING_ON_WINDOWS, 1, [Are we compiling on Windows?])
-fi
-if test "x${OS}" != "xWindows_NT" && $(uname -s) = "Linux" ; then
-	AC_DEFINE(COMPILING_ON_LINUX, 1, ["Are we compiling on Linux"])
-fi
-
-# Determine what the host system is, that is the system we want the resulting executable to run on.
-case "${host}" in
-i[3456]86-*-linux-*)
-	AC_DEFINE(COMPILING_FOR_LINUX, 1, ["Are we compiling for Linux"])
+# define the appropriate thing depending on detected OS.
+case "${host_os}" in
+mingw*)
+	AC_DEFINE(COMPILING_FOR_WINDOWS, 1, [Are we compiling for Windows])
 	;;
-x86_64-*-linux-*)
-	AC_DEFINE(COMPILING_FOR_LINUX, 1, ["Are we compiling for Linux"])
+linux*)
+	AC_DEFINE(COMPILING_FOR_LINUX, 1, [Are we compiling for Linux])
 	;;
-x86_64-*-mingw*)
-	AC_DEFINE(COMPILING_FOR_WINDOWS, 1, [Are we compiling for Windows?])
+*)
 	;;
 esac
 
