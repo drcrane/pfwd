@@ -237,7 +237,7 @@ int main(int argc, char *argv[]) {
 	char * destIp;
 	unsigned short destPort;
 
-	if (argc != 4) {
+	if (argc != 5) {
 		fprintf(stderr, "Usage:\n   %s <listenIp> <listenPort> <destIp> <destPort>\n   %s 0.0.0.0 5000 192.168.1.104 2030\n", "pfwd", "pfwd");
 		return 1;
 	}
