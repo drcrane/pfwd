@@ -6,6 +6,16 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_AUX_DIR([buildaux])
 AC_CONFIG_MACRO_DIR([m4])
 
+# information on these can be found in the autoconf manual:
+# https://www.gnu.org/software/autoconf/manual/autoconf.html#Canonicalizing
+# set the $host environment variable so we can make decisions on Windows or Linux
+# this is the host system type (the system for which the project is built for)
+AC_CANONICAL_HOST
+# set the $target environment variable so we can make decisions on Windows or Linux
+# this is actually used for toolchains, build and host would be the systems used
+# to compile the sources and the system used to execute the generated executable.
+#AC_CANONICAL_TARGET
+
 AM_INIT_AUTOMAKE([1.11 subdir-objects foreign dist-bzip2 -Wall -Werror])
 AC_CONFIG_FILES([Makefile])
 
@@ -17,16 +27,13 @@ AC_PROG_CC
 # needed for xxx_CPPFLAGS in Makefile.am though it seems to work without
 #AC_PROG_CC_C_O
 
-# set the $host environment variable so we can make decisions on Windows or Linux
-AC_CANONICAL_HOST
-
-# define the appropriate thing depending on detected OS.
+# define the appropriate thing depending on the host OS.
 case "${host_os}" in
 mingw*)
-	AC_DEFINE(COMPILING_FOR_WINDOWS, 1, [Are we compiling for Windows])
+	AC_DEFINE(COMPILING_FOR_WINDOWS, 1, [Compiling for Windows])
 	;;
 linux*)
-	AC_DEFINE(COMPILING_FOR_LINUX, 1, [Are we compiling for Linux])
+	AC_DEFINE(COMPILING_FOR_LINUX, 1, [Compiling for Linux])
 	;;
 *)
 	;;

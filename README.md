@@ -39,3 +39,15 @@ configure script which you may run, along with make, in the normal way. If you
 have cloned this from my repo you will need `autoconf` and `automake` installed 
 on your system as you will be required to execute `autoreconf -i` to make the 
 `configure` script.
+
+References
+----------
+
+Although this is a "Hello World" style programme it was useful to educate 
+myself in using Autotools. If you would like to know more about autotools then 
+please have a look at the following URLs:
+
+* [Autotools: a practitioner's guide to Autoconf, Automake and Libtool](http://freesoftwaremagazine.com/books/autotools_a_guide_to_autoconf_automake_libtool/)
+* [Introduction to the Autotools](http://www.dwheeler.com/autotools/)
+
+
