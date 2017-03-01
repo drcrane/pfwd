@@ -261,6 +261,11 @@ int main(int argc, char *argv[]) {
 		
 		cliSock = connect_client(destIp, destPort);
 		fprintf(stdout, "SOCKETS %d %d\n", (int)cliSock, (int)svcSock); fflush(stdout);
+		if (cliSock == INVALID_SOCKET) {
+			fprintf(stdout, "Could not complete client connection\n");
+			closesocket(svcSock);
+			continue;
+		}
 		
 		svc_thr = (struct service_thread_args *)malloc(sizeof(struct service_thread_args));
 		svc_thr->svcSock = svcSock;
