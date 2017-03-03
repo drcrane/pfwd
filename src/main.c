@@ -250,6 +250,11 @@ int main(int argc, char *argv[]) {
 	app_initialise();
 
 	svrSock = configure_server(listenIp, listenPort);
+	if (svrSock == INVALID_SOCKET) {
+		// maybe this port is taken?
+		fprintf(stderr, "Cannot bind server socket, quitting now\n");
+		goto error;
+	}
 
 #ifdef __COMPILE_FOR_LINUX
 	signal(SIGPIPE, SIG_IGN);
@@ -280,7 +285,7 @@ int main(int argc, char *argv[]) {
 		pthread_create(&tid, thattr, service_thread, (void *)svc_thr);
 #endif
 	}
-	
+error:
 	app_shutdown();
 	return 0;
 }
