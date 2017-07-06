@@ -20,6 +20,9 @@
 #define SOCKADDR_IN struct sockaddr_in
 #define closesocket close
 #include <pthread.h>
+/* for getaddrinfo, freeaddrinfo and other useful stuff */
+#include <sys/types.h>
+#include <netdb.h>
 #endif
 
 #include <stdio.h>
@@ -89,6 +92,48 @@ error:
 	return INVALID_SOCKET;
 }
 
+#ifdef __COMPILE_FOR_LINUX
+SOCKET connect_client(char * hostname_str, unsigned short port) {
+	int rc;
+	struct addrinfo hints, *res = NULL;
+	SOCKET sock = INVALID_SOCKET;
+
+	memset(&hints, 0, sizeof(struct addrinfo));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = AI_PASSIVE;
+	hints.ai_protocol = 0;
+	hints.ai_canonname = NULL;
+	hints.ai_addr = NULL;
+	hints.ai_next = NULL;
+
+	rc = getaddrinfo(hostname_str, NULL, &hints, &res);
+	if (rc != 0) {
+		goto error;
+	}
+	sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol);
+	if (sock == INVALID_SOCKET) {
+		goto error;
+	}
+	((struct sockaddr_in *)res->ai_addr)->sin_port = htons(port);
+	rc = connect(sock, res->ai_addr, (int)res->ai_addrlen);
+	if (rc != 0) {
+		goto error;
+	}
+	freeaddrinfo(res);
+	return sock;
+error:
+	if (res != NULL) {
+		freeaddrinfo(res);
+	}
+	if (sock != INVALID_SOCKET) {
+		closesocket(sock);
+	}
+	return INVALID_SOCKET;
+}
+#endif
+
+#ifdef __COMPILE_FOR_WIN32
 SOCKET connect_client(char * ipaddress, unsigned short port) {
 	SOCKET sock;
 	SOCKADDR_IN sin;
@@ -113,6 +158,7 @@ error:
 	if (sock != INVALID_SOCKET) { closesocket(sock); }
 	return INVALID_SOCKET;
 }
+#endif
 
 #define BUFFER_SIZE 4096
 
