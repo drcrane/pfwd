@@ -22,7 +22,6 @@ Listen on all IP addresses on port 5000 and forward any incomming connections to
 TODO List
 ---------
 
- * Write a simple usage option --help
  * Have all activity on a single thread (the main thread)
  * Allow the programme to be daemonised
 
