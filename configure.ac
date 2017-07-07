@@ -27,12 +27,22 @@ AC_PROG_CC
 # needed for xxx_CPPFLAGS in Makefile.am though it seems to work without
 #AC_PROG_CC_C_O
 
+# Restrict to C99
+#AC_PROG_CC_C99
+
+# Add C11 Support
+AX_CHECK_COMPILE_FLAG([-std=c11],
+	[AX_APPEND_FLAG([-std=c11])],
+	[AC_MSG_WARN([-std=c11 not supported, you may have to set CFLAGS to enable C11 support.])
+])
+
 # define the appropriate thing depending on the host OS.
 case "${host_os}" in
 mingw*)
 	AC_DEFINE(COMPILING_FOR_WINDOWS, 1, [Compiling for Windows])
 	;;
 linux*)
+	AX_APPEND_COMPILE_FLAGS([-D_POSIX_C_SOURCE=201112L])
 	AC_DEFINE(COMPILING_FOR_LINUX, 1, [Compiling for Linux])
 	;;
 *)
@@ -71,6 +81,7 @@ AC_HELP_STRING([--disable-hexdumps],[Disable Hex Dumps]),
   esac ],[
        AC_MSG_RESULT(yes) ]
 )
+
 
 # PKG_CHECK_MODULES([DEPS], [pthreads])
 
