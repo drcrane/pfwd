@@ -6,9 +6,11 @@
 #ifdef __COMPILE_FOR_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <winsock2.h>
+#include <ws2tcpip.h>
 #endif
 #ifdef __COMPILE_FOR_LINUX
-/* for linux compile with these flags:
+/*
+ * for linux compile with these flags:
  * -D_REENTRANT -lpthread
  */
 #include <unistd.h>
@@ -92,14 +94,14 @@ error:
 	return INVALID_SOCKET;
 }
 
-#ifdef __COMPILE_FOR_LINUX
 SOCKET connect_client(char * hostname_str, unsigned short port) {
 	int rc;
 	struct addrinfo hints, *res = NULL;
 	SOCKET sock = INVALID_SOCKET;
 
 	memset(&hints, 0, sizeof(struct addrinfo));
-	hints.ai_family = AF_UNSPEC;
+	//hints.ai_family = AF_UNSPEC;
+	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 	hints.ai_protocol = 0;
@@ -131,34 +133,6 @@ error:
 	}
 	return INVALID_SOCKET;
 }
-#endif
-
-#ifdef __COMPILE_FOR_WIN32
-SOCKET connect_client(char * ipaddress, unsigned short port) {
-	SOCKET sock;
-	SOCKADDR_IN sin;
-	int ret;
-	sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-	if (sock == INVALID_SOCKET) {
-		return sock;
-	}
-	memset(&sin, 0, sizeof(SOCKADDR_IN));
-	sin.sin_family = PF_INET;
-	sin.sin_port = htons(port);
-	sin.sin_addr.s_addr = inet_addr(ipaddress);
-
-	ret = connect(sock, (struct sockaddr *)&sin, sizeof(SOCKADDR_IN));
-	if (ret == SOCKET_ERROR) {
-		goto error;
-	}
-
-	return sock;
-
-error:
-	if (sock != INVALID_SOCKET) { closesocket(sock); }
-	return INVALID_SOCKET;
-}
-#endif
 
 #define BUFFER_SIZE 4096
 

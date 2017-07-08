@@ -9,6 +9,7 @@ config.log
 config.status
 configure
 pfwd
+pfwd.exe
 src/.deps/
 src/.dirstamp
 *.o
