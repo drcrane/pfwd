@@ -39,6 +39,11 @@ have cloned this from my repo you will need `autoconf` and `automake` installed
 on your system as you will be required to execute `autoreconf -i` to make the 
 `configure` script.
 
+To configure the programme to dump all the relayed traffic in hex and printable
+ASCII invoke `configure` like this:
+
+    ./configure --enable-hexdumps
+
 References
 ----------
 

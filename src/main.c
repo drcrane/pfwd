@@ -37,7 +37,6 @@
 static void dump_bytes(FILE * file, char * prfx, char * bytes, int len) {
 	int i, j;
 	int count = 0;
-	return;
 
 	for (i = 0; i < len; i++) {
 		if (!count) {
@@ -164,6 +163,10 @@ void * service_thread(void * argsPtr) {
 
 	if (svcBuf == NULL || cliBuf == NULL) { goto service_thread_error; }
 
+	#ifdef PFWD_ENABLE_HEXDUMPS
+	fprintf(stdout, "HEXDUMP ENABLED\n");
+	#endif
+
 	while (1) {
 		FD_ZERO(&socks);
 		FD_SET(svcSock, &socks);
@@ -188,7 +191,7 @@ void * service_thread(void * argsPtr) {
 			if (svcBytes == 0) { break; }
 			if (svcBytes > 0) {
 				res = send(cliSock, svcBuf, svcBytes, 0);
-				#ifdef PFWD_DISABLE_HEXDUMPS
+				#ifdef PFWD_ENABLE_HEXDUMPS
 				dump_bytes(stdout, "C ", svcBuf, svcBytes);
 				#endif
 				if (res <= 0) { break; }
@@ -201,7 +204,7 @@ void * service_thread(void * argsPtr) {
 			if (cliBytes == 0) { break; }
 			if (cliBytes > 0) {
 				res = send(svcSock, cliBuf, cliBytes, 0);
-				#ifdef PFWD_DISABLE_HEXDUMPS
+				#ifdef PFWD_ENABLE_HEXDUMPS
 				dump_bytes(stdout, "S ", cliBuf, cliBytes);
 				#endif
 				if (res <= 0) { break; }

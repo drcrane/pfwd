@@ -77,6 +77,8 @@ AC_HELP_STRING([--disable-hexdumps],[Disable Hex Dumps]),
        ;;
   *)
        AC_MSG_RESULT(yes)
+       AC_DEFINE(PFWD_ENABLE_HEXDUMPS, 1, [to enable Hex Dumps])
+       AC_SUBST(PFWD_ENABLE_HEXDUMPS, [1])
        ;;
   esac ],[
        AC_MSG_RESULT(yes) ]
