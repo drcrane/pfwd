@@ -84,6 +84,24 @@ AC_HELP_STRING([--disable-hexdumps],[Disable Hex Dumps]),
        AC_MSG_RESULT(yes) ]
 )
 
+AC_MSG_CHECKING([include support for plugins])
+AC_ARG_ENABLE(plugins,
+AC_HELP_STRING([--enable-plugins],[Enable plugin support])
+AC_HELP_STRING([--disable-plugins],[Disable plugin support]),
+[ case "$enableval" in
+  no)
+       AC_MSG_RESULT(no)
+       AC_DEFINE(PFWD_DISABLE_PLUGINS, 1, [to disable Plugins])
+       AC_SUBST(PFWD_DISABLE_PLUGINS, [1])
+       ;;
+  *)
+       AC_MSG_RESULT(yes)
+       AC_DEFINE(PFWD_ENABLE_PLUGINS, 1, [to enable Plugins])
+       AC_SUBST(PFWD_ENABLE_PLUGINS, [1])
+       ;;
+  esac ],[
+       AC_MSG_RESULT(yes) ]
+)
 
 # PKG_CHECK_MODULES([DEPS], [pthreads])
 

@@ -31,6 +31,7 @@
 #include <string.h>
 
 #include "application.h"
+#include "pfwd.h"
 
 #define LINE_LENGTH 16
 
@@ -135,14 +136,10 @@ error:
 
 #define BUFFER_SIZE 4096
 
-struct service_thread_args {
-	SOCKET svcSock, cliSock;
-	int threadId;
-};
-
 void * service_thread(void * argsPtr) {
 	SOCKET svcSock = INVALID_SOCKET, cliSock = INVALID_SOCKET, highSock;
 	fd_set socks;
+	pfwd_context_t * ctx;
 
 	int readsocks;
 
@@ -155,14 +152,23 @@ void * service_thread(void * argsPtr) {
 
 	struct timeval s_timeout;
 
-	svcSock = ((struct service_thread_args *)argsPtr)->svcSock;
-	cliSock = ((struct service_thread_args *)argsPtr)->cliSock;
+	ctx = (pfwd_context_t *)argsPtr;
+	svcSock = ((pfwd_context_t *)argsPtr)->svrSock;
+	cliSock = ((pfwd_context_t *)argsPtr)->cliSock;
 
 	svcBuf = malloc(BUFFER_SIZE);
 	cliBuf = malloc(BUFFER_SIZE);
 
+	ctx->svrBuf = svcBuf;
+	ctx->cliBuf = cliBuf;
+
 	if (svcBuf == NULL || cliBuf == NULL) { goto service_thread_error; }
 
+	#ifdef PFWD_ENABLE_PLUGINS
+	if (ctx->onconnect != NULL) {
+		ctx->onconnect(ctx);
+	}
+	#endif
 	#ifdef PFWD_ENABLE_HEXDUMPS
 	fprintf(stdout, "HEXDUMP ENABLED\n");
 	#endif
@@ -191,6 +197,11 @@ void * service_thread(void * argsPtr) {
 			if (svcBytes == 0) { break; }
 			if (svcBytes > 0) {
 				res = send(cliSock, svcBuf, svcBytes, 0);
+				#ifdef PFWD_ENABLE_PLUGINS
+				if (ctx->onserverdata != NULL) {
+					ctx->onserverdata(ctx, svcBuf, svcBytes);
+				}
+				#endif
 				#ifdef PFWD_ENABLE_HEXDUMPS
 				dump_bytes(stdout, "C ", svcBuf, svcBytes);
 				#endif
@@ -204,6 +215,11 @@ void * service_thread(void * argsPtr) {
 			if (cliBytes == 0) { break; }
 			if (cliBytes > 0) {
 				res = send(svcSock, cliBuf, cliBytes, 0);
+				#ifdef PFWD_ENABLE_PLUGINS
+				if (ctx->onclientdata != NULL) {
+					ctx->onclientdata(ctx, cliBuf, cliBytes);
+				}
+				#endif
 				#ifdef PFWD_ENABLE_HEXDUMPS
 				dump_bytes(stdout, "S ", cliBuf, cliBytes);
 				#endif
@@ -244,7 +260,7 @@ int main(int argc, char *argv[]) {
 	SOCKET svrSock;
 	SOCKET cliSock;
 	SOCKET svcSock;
-	struct service_thread_args * svc_thr;
+	pfwd_context_t * svc_thr;
 
 #ifdef __COMPILE_FOR_WIN32
 	DWORD tid;
@@ -295,8 +311,9 @@ int main(int argc, char *argv[]) {
 			continue;
 		}
 		
-		svc_thr = (struct service_thread_args *)malloc(sizeof(struct service_thread_args));
-		svc_thr->svcSock = svcSock;
+		svc_thr = (pfwd_context_t *)malloc(sizeof(pfwd_context_t));
+		memset(svc_thr, 0, sizeof(pfwd_context_t));
+		svc_thr->svrSock = svcSock;
 		svc_thr->cliSock = cliSock;
 
 #ifdef __COMPILE_FOR_WIN32
