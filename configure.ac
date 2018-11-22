@@ -1,4 +1,4 @@
-AC_INIT([pfwd], [0.01], [http://www.bengreen.eu/])
+AC_INIT([pfwd], [0.0.2], [http://www.bengreen.eu/])
 AC_PREREQ([2.68])
 AC_CONFIG_SRCDIR([src/main.c])
 AC_CONFIG_HEADERS([config.h])
