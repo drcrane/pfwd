@@ -14,6 +14,7 @@ struct pfwd_context_s {
 	void * (*onconnect)(pfwd_context_t * ctx);
 	void * (*onclientdata)(pfwd_context_t * ctx, void * buf, size_t len);
 	void * (*onserverdata)(pfwd_context_t * ctx, void * buf, size_t len);
+	void * (*ondisconnect)(pfwd_context_t * ctx);
 };
 
 #endif // PFWD_H

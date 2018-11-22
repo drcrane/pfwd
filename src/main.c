@@ -232,6 +232,11 @@ void * service_thread(void * argsPtr) {
 			break;
 		}
 	}
+	#ifdef PFWD_ENABLE_PLUGINS
+	if (ctx->ondisconnect != NULL) {
+		ctx->ondisconnect(ctx);
+	}
+	#endif
 	goto service_thread_return;
 
 service_thread_error:
