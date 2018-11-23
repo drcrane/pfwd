@@ -32,6 +32,7 @@
 
 #include "application.h"
 #include "pfwd.h"
+#include "writestream.h"
 
 #define LINE_LENGTH 16
 
@@ -320,6 +321,10 @@ int main(int argc, char *argv[]) {
 		memset(svc_thr, 0, sizeof(pfwd_context_t));
 		svc_thr->svrSock = svcSock;
 		svc_thr->cliSock = cliSock;
+		svc_thr->onconnect = writestream_connectionstarted;
+		svc_thr->onclientdata = writestream_datafromserver;
+		svc_thr->onserverdata = writestream_datafromclient;
+		svc_thr->ondisconnect = writestream_connectionclosed;
 
 #ifdef __COMPILE_FOR_WIN32
 		threadHandle = CreateThread((LPSECURITY_ATTRIBUTES)NULL, (SIZE_T)65536, (LPTHREAD_START_ROUTINE)service_thread, (LPVOID)svc_thr, 0, (LPDWORD)&tid);

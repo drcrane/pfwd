@@ -2,6 +2,7 @@
 #define PFWD_H
 
 #include "myconfig.h"
+#include <stdint.h>
 
 typedef struct pfwd_context_s pfwd_context_t;
 
