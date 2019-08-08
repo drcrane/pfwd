@@ -13,4 +13,5 @@ pfwd.exe
 src/.deps/
 src/.dirstamp
 *.o
+*~
 stamp-h1

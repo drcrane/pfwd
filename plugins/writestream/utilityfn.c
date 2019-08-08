@@ -3,10 +3,11 @@
 #include <string.h>
 #include <malloc.h>
 #include <ctype.h> // for isspace isdigit
+#include <stddef.h>
 
 #include <math.h> // for log10 pow isnan isinf floor
 
-// #include "dbg.h"
+//#include "dbg.h"
 
 // http://www.netlib.org/fdlibm/
 // https://stackoverflow.com/questions/16647278/minimal-implementation-of-sprintf-or-printf
@@ -199,9 +200,12 @@ double Utility_aToDouble(const char * ptr) {
 }
 
 static const double PRECISION = 0.00000000000001;
+#pragma warning(suppress: 4068)
 #pragma GCC diagnostic push
+#pragma warning(suppress: 4068)
 #pragma GCC diagnostic ignored "-Wunused-const-variable="
 static const int MAX_NUMBER_STRING_SIZE = 32;
+#pragma warning(suppress: 4068)
 #pragma GCC diagnostic pop
 
 /**
@@ -411,7 +415,7 @@ static void ftoa_sci(char *buffer, double value) {
 
 	exponent = normalize(&value);
 
-	digit = value * 10.0;
+	digit = (int)(value * 10.0);
 	*buffer++ = digit + '0';
 	value = value * 10.0 - digit;
 	--exponent;
@@ -419,7 +423,7 @@ static void ftoa_sci(char *buffer, double value) {
 	*buffer++ = '.';
 
 	for (i = 0; i < width; i++) {
-		int digit = value * 10.0;
+		int digit = (int)(value * 10.0);
 		*buffer++ = digit + '0';
 		value = value * 10.0 - digit;
 	}
@@ -428,12 +432,12 @@ static void ftoa_sci(char *buffer, double value) {
 	Utility_intToA(buffer, exponent, 10);
 }
 
-int Utility_doubleToASci(char * s, double n) {
+size_t Utility_doubleToASci(char * s, double n) {
 	ftoa_sci(s, n);
 	return strlen(s);
 }
 
-static int matches(char input, char * matches) {
+static int matches(char input, const char * matches) {
 	while (*matches != '\0') {
 		if (*matches == input) {
 			return 1;
@@ -470,7 +474,7 @@ char * Utility_reverseTokenise(char * string, char * tokens, int skip) {
 	size = len - pos;
 	//fprintf(stdout, "pos %d len %d size %d\n", (int)pos, (int)len, (int)size);
 	if (size == 0 || skip) {
-		return Utility_EMPTYSTRING;
+		return (char *)Utility_EMPTYSTRING;
 	}
 	buf = malloc(size + 1);
 	if (buf == NULL) {
@@ -621,7 +625,7 @@ static void dump_bytes(char * dest, char * prfx, char * bytes, int len) {
 #undef LINE_LENGTH
 
 int Utility_dumphex(char * destination, const char * source, int len) {
-	dump_bytes(destination, "", source, len);
+	dump_bytes(destination, "", (char *)source, len);
 	return 0;
 }
 
@@ -671,6 +675,52 @@ char * Utility_tokeniseString(char * string, char * delimiters, char ** context)
 	}
 
 	return string;
+}
+
+static int isHexDigit(int c, int * val) {
+	if (c >= '0' && c <= '9') {
+		*val = c - '0';
+		goto end_success;
+	}
+	if (c >= 'a' && c <= 'f') {
+		*val = c - ('a' - 10);
+		goto end_success;
+	}
+	if (c >= 'A' && c <= 'F') {
+		*val = c - ('A' - 10);
+		goto end_success;
+	}
+	return 0;
+end_success:
+	return 1;
+}
+
+// Read a string of hex digits.
+// WARNING: this will not return until a non-hex digit is encountered.
+void Utility_hexToBytes(char* dst, char* src) {
+	int cur;
+	int c;
+	int val;
+	do {
+		c = *src;
+		src++;
+		if (isHexDigit(c, &val)) {
+			cur = val;
+		} else {
+			break;
+		}
+		c = *src;
+		src++;
+		if (isHexDigit(c, &val)) {
+			cur = (cur << 4) | val;
+			*dst = cur;
+		} else {
+			*dst = cur;
+			break;
+		}
+		dst++;
+	} while (1);
+	return 0;
 }
 
 #ifdef __UNITTEST__
