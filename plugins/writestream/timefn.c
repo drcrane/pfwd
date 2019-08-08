@@ -67,8 +67,8 @@ uint64_t timefn_getunixmillis(int year, int month, int day, int hour, int minute
 #ifdef __COMPILE_FOR_LINUX
 	struct tm tm;
 	time_t unix_time;
-	tm.tm_year = year;
-	tm.tm_mon = month;
+	tm.tm_year = year - 1900;
+	tm.tm_mon = month - 1;
 	tm.tm_mday = day;
 	tm.tm_hour = hour;
 	tm.tm_min = minute;
@@ -102,8 +102,8 @@ void timefn_gettimefromunixtimemillis(timefntime_t * timeoutput, int64_t unixtim
 	time_t unix_time;
 	unix_time = unixtimemillis / 1000;
 	gmtime_r(&unix_time, &tm);
-	timeoutput->year = tm.tm_year;
-	timeoutput->month = tm.tm_mon;
+	timeoutput->year = tm.tm_year + 1900;
+	timeoutput->month = tm.tm_mon + 1;
 	timeoutput->day = tm.tm_mday;
 	timeoutput->hour = tm.tm_hour;
 	timeoutput->minute = tm.tm_min;
@@ -146,6 +146,7 @@ uint64_t timefn_getcurrentunixtimemillis() {
 	time_t s;
 	struct timespec spec;
 	clock_gettime(CLOCK_REALTIME, &spec);
+	s = spec.tv_sec;
 	ms = round(spec.tv_nsec / 1.0e6); // nano seconds to milliseconds
 	if (ms > 999) {
 		s ++;
@@ -166,7 +167,7 @@ void timefn_getcurrenttimedatestruct(timefntime_t * timeoutput) {
 	timeoutput->minute = systemtime.wMinute;
 	timeoutput->second = systemtime.wSecond;
 #else
-	//
+	timefn_gettimefromunixtimemillis(timeoutput, timefn_getcurrentunixtimemillis());
 #endif
 }
 

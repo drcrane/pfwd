@@ -13,6 +13,7 @@ void * writestream_connectionstarted(pfwd_context_t * ctx) {
 	uint64_t current_time_millis;
 	current_time_millis = timefn_getcurrentunixtimemillis();
 	timefn_formattimefrommillis(buf, current_time_millis);
+	fprintf(stdout, "DATETIME: %ld %s\n", current_time_millis, buf);
 	Utility_removeCharacters(buf, ": -");
 	strcat(buf, ".log");
 	file = fopen(buf, "wb");
