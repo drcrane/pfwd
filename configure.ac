@@ -30,6 +30,9 @@ AC_PROG_CC
 # Restrict to C99
 #AC_PROG_CC_C99
 
+AC_CHECK_LIB([m], [log10])
+#AC_SEARCH_LIBS([log10], [m], [has_libm])
+
 # Add C11 Support
 AX_CHECK_COMPILE_FLAG([-std=c11],
 	[AX_APPEND_FLAG([-std=c11])],

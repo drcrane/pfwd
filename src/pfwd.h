@@ -4,6 +4,8 @@
 #include "myconfig.h"
 #include <stdint.h>
 
+#include <stddef.h>
+
 typedef struct pfwd_context_s pfwd_context_t;
 
 struct pfwd_context_s {

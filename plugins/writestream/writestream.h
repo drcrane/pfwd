@@ -11,6 +11,8 @@
 
 #include "pfwd.h"
 
+#include <stddef.h>
+
 void * writestream_connectionstarted(pfwd_context_t * ctx);
 void * writestream_datafromserver(pfwd_context_t * ctx, void * data, size_t data_len);
 void * writestream_datafromclient(pfwd_context_t * ctx, void * data, size_t data_len);
