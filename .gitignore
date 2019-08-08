@@ -10,8 +10,8 @@ config.status
 configure
 pfwd
 pfwd.exe
-src/.deps/
-src/.dirstamp
+.deps/
+.dirstamp
 *.o
 *~
 stamp-h1

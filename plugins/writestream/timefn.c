@@ -75,7 +75,7 @@ uint64_t timefn_getunixmillis(int year, int month, int day, int hour, int minute
 	tm.tm_sec = second;
 	//unix_time = timegm(&tm);
 	unix_time = my_timegm(&tm);
-	return 0;
+	return (unix_time * 1000);
 #endif
 }
 
