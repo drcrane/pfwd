@@ -1,6 +1,8 @@
 #include "myconfig.h"
 #include "timefn.h"
 #include <malloc.h>
+#include <stdio.h>
+#include <stdlib.h>
 // #include "leakdetector.h"
 #ifdef __COMPILE_FOR_WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -14,8 +16,10 @@
 #include <math.h>
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
+// #define USE_UTILITY_FN
+#ifdef USE_UTILITY_FN
+#include "utilityfn.h"
+#endif
 
 #ifdef __COMPILE_FOR_LINUX
 #include <time.h>
@@ -172,10 +176,25 @@ void timefn_getcurrenttimedatestruct(timefntime_t * timeoutput) {
 }
 
 uint64_t timefn_parsetimetomillis(char * src) {
-	//timefntime_t timebuf;
-	int year, month, day, hour, min, sec;
-	sscanf(src, "%04d-%02d-%02dT%02d:%02d:%02d",
-			&year, &month, &day, &hour, &min, &sec);
+	int year, month, day, hour, min, sec, sep;
+#ifdef USE_UTILITY_FN
+	year = Utility_aToInt(src);
+	month = Utility_aToInt(src + 5);
+	day = Utility_aToInt(src + 5 + 3);
+	hour = Utility_aToInt(src + 5 + 3 + 3);
+	min = Utility_aToInt(src + 5 + 3 + 3 + 3);
+	sec = Utility_aToInt(src + 5 + 3 + 3 + 3 + 3);
+#else
+	sscanf(src, "%04d-%02d-%02d%c%02d:%02d:%02d",
+			&year, &month, &day, &sep, &hour, &min, &sec);
+	// TODO: Something here??
+	/*
+	if (sep == ' ' || sep == 'T') {
+		// Date and Time is valid... or at least we think so!
+	}
+	*/
+#endif
 	return timefn_getunixmillis(year, month, day, hour, min, sec);
 }
+
 
