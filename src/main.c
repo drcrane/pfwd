@@ -36,6 +36,11 @@
 
 #define LINE_LENGTH 16
 
+#ifdef PFWD_ENABLE_INTERACTIVE
+volatile int send_data = 1;
+volatile int recv_data = 1;
+#endif
+
 static void dump_bytes(FILE * file, char * prfx, char * bytes, int len) {
 	int i, j;
 	int count = 0;
@@ -176,7 +181,13 @@ void * service_thread(void * argsPtr) {
 
 	while (1) {
 		FD_ZERO(&socks);
+		#ifdef PFWD_ENABLE_INTERACTIVE
+		if (recv_data) {
+			FD_SET(svcSock, &socks);
+		}
+		#else
 		FD_SET(svcSock, &socks);
+		#endif
 		FD_SET(cliSock, &socks);
 		s_timeout.tv_sec = 2500 / 1000;
 		s_timeout.tv_usec = (2500 % 1000) * 1000;
@@ -215,7 +226,15 @@ void * service_thread(void * argsPtr) {
 			cliBytes = recv(cliSock, cliBuf, 4096, 0);
 			if (cliBytes == 0) { break; }
 			if (cliBytes > 0) {
+				#ifdef PFWD_ENABLE_INTERACTIVE
+				if (send_data) {
+					res = send(svcSock, cliBuf, cliBytes, 0);
+				} else {
+					res = cliBytes;
+				}
+				#else
 				res = send(svcSock, cliBuf, cliBytes, 0);
+				#endif
 				#ifdef PFWD_ENABLE_PLUGINS
 				if (ctx->onclientdata != NULL) {
 					ctx->onclientdata(ctx, cliBuf, cliBytes);
@@ -262,6 +281,34 @@ service_thread_return:
 	return NULL;
 }
 
+#ifdef PFWD_ENABLE_INTERACTIVE
+void * command_thread(void * argsPtr) {
+	// Read a command from stdin
+	char buf[128];
+	while (fgets(buf, 128, stdin) != NULL) {
+		if (strncmp(buf, "NOSND", 5) == 0) {
+			send_data = 0;
+			fprintf(stdout, "NOT SENDING TO CLIENT\n");
+		}
+		if (strncmp(buf, "SND", 3) == 0) {
+			send_data = 1;
+			fprintf(stdout, "SENDING TO CLIENT\n");
+		}
+		if (strncmp(buf, "NOREC", 5) == 0) {
+			recv_data = 0;
+			fprintf(stdout, "NO RECV FROM CLIENT\n");
+		}
+		if (strncmp(buf, "REC", 3) == 0) {
+			recv_data = 1;
+			fprintf(stdout, "RECV FROM CLIENT\n");
+		}
+		fflush(stdout);
+	}
+	fprintf(stdout, "Ending\n");
+	return NULL;
+}
+#endif
+
 int main(int argc, char *argv[]) {
 	SOCKET svrSock;
 	SOCKET cliSock;
@@ -271,10 +318,16 @@ int main(int argc, char *argv[]) {
 #ifdef __COMPILE_FOR_WIN32
 	DWORD tid;
 	HANDLE threadHandle;
+#ifdef PFWD_ENABLE_INTERACTIVE
+	HANDLE commandThreadHandle;
+#endif
 #endif
 #ifdef __COMPILE_FOR_LINUX
 	pthread_t tid;
 	pthread_attr_t * thattr;
+#ifdef PFWD_ENABLE_INTERACTIVE
+	pthread_t tinteractiveid;
+#endif
 #endif
 
 	char * listenIp;
@@ -286,7 +339,7 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "Usage:\n   %s <listenIp> <listenPort> <destIp> <destPort>\n   %s 0.0.0.0 5000 192.168.1.104 2030\n", "pfwd", "pfwd");
 		return 1;
 	}
-	
+
 	listenIp = argv[1];
 	listenPort = atoi(argv[2]);
 	destIp = argv[3];
@@ -300,6 +353,16 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "Cannot bind server socket, quitting now\n");
 		goto error;
 	}
+
+#ifdef PFWD_ENABLE_INTERACTIVE
+#ifdef __COMPILE_FOR_WIN32
+	commandThreadHandle = CreateThread((LPSECURITY_ATTRIBUTES)NULL, (SIZE_T)65536, (LPTHREAD_START_ROUTINE)command_thread, (LPVOID)NULL, 0, (LPDWORD)NULL);
+#endif
+#ifdef __COMPILE_FOR_LINUX
+	thattr = NULL;
+	pthread_create(&tinteractiveid, thattr, command_thread, (void *)NULL);
+#endif
+#endif
 
 #ifdef __COMPILE_FOR_LINUX
 	signal(SIGPIPE, SIG_IGN);

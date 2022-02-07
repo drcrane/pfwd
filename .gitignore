@@ -10,6 +10,8 @@ config.status
 configure
 pfwd
 pfwd.exe
+streaminspector
+streaminspector.exe
 .deps/
 .dirstamp
 *.o

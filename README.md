@@ -24,6 +24,7 @@ TODO List
 
  * Have all activity on a single thread (the main thread)
  * Allow the programme to be daemonised
+ * Fix autoconf warnings about `AC_HELP_STRING`
 
 Building
 --------
@@ -44,10 +45,40 @@ ASCII invoke `configure` like this:
 
     ./configure --enable-hexdumps
 
+Plugins
+-------
+
+The writestream plugin allows one to write all the communication from the
+server to the client and from the client to the server to a file for later
+inspection. This is the only plugin for now, to enable it:
+
+    ./configure --enable-plugins
+
+A `.log` file will be created for every connection forwarded. The format is
+simple and can be decoded with the `streamdecoder` programme in the
+`writestream` plugins directory.
+
+Interactive
+-----------
+
+`pfwd` provides the ability to drop any transmission from the client to the
+server or server to client through an interactive terminal prompt. To enable
+the feature at compilation time:
+
+    ./configure --enable-interactive
+
+To use the feature enter one of the following commands to stdin when pfwd is
+running:
+
+* `SND` Send data from server to client (default)
+* `NOSND` Do not send data from server to client
+* `REC` Send data received from client to server (default)
+* `NOREC` Do not send data received from client to server
+
 References
 ----------
 
-Although this is a "Hello World" style programme it was useful to educate 
+Although this is a "Hello World" style programme it was useful to educate
 myself in using Autotools. If you would like to know more about autotools then 
 please have a look at the following URLs:
 

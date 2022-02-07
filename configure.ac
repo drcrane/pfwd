@@ -1,4 +1,4 @@
-AC_INIT([pfwd], [0.0.2], [http://www.bengreen.eu/])
+AC_INIT([pfwd], [0.0.3], [http://www.e42.uk/])
 AC_PREREQ([2.68])
 AC_CONFIG_SRCDIR([src/main.c])
 AC_CONFIG_HEADERS([config.h])
@@ -101,6 +101,25 @@ AC_HELP_STRING([--disable-plugins],[Disable plugin support]),
        AC_MSG_RESULT(yes)
        AC_DEFINE(PFWD_ENABLE_PLUGINS, 1, [to enable Plugins])
        AC_SUBST(PFWD_ENABLE_PLUGINS, [1])
+       ;;
+  esac ],[
+       AC_MSG_RESULT(yes) ]
+)
+
+AC_MSG_CHECKING([include interactive terminal thread])
+AC_ARG_ENABLE(interactive,
+AC_HELP_STRING([--enable-interactive],[Enable interactive terminal thread])
+AC_HELP_STRING([--disable-interactive],[Disable interactive terminal thread]),
+[ case "$enableval" in
+  no)
+       AC_MSG_RESULT(no)
+       AC_DEFINE(PFWD_DISABLE_INTERACTIVE, 1, [to disable interactive support])
+       AC_SUBST(PFWD_DISABLE_INTERACTIVE, [1])
+       ;;
+  *)
+       AC_MSG_RESULT(yes)
+       AC_DEFINE(PFWD_ENABLE_INTERACTIVE, 1, [to enable interactive support])
+       AC_SUBST(PFWD_ENABLE_INTERACTIVE, [1])
        ;;
   esac ],[
        AC_MSG_RESULT(yes) ]
