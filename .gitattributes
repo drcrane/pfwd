@@ -1,0 +1,6 @@
+* auto
+*.c text eol=lf
+*.h text eol=lf
+Makefile.am text eol=lf
+configure.ac text eol=lf
+
