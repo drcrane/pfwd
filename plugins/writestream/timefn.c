@@ -1,4 +1,3 @@
-#include "myconfig.h"
 #include "timefn.h"
 #include <malloc.h>
 #include <stdio.h>
