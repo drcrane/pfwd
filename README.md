@@ -25,6 +25,7 @@ TODO List
  * Have all activity on a single thread (the main thread)
  * Allow the programme to be daemonised
  * Fix autoconf warnings about `AC_HELP_STRING`
+ * Don't build `streaminspector` when plugins are disabled
 
 Building
 --------

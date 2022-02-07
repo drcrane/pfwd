@@ -6,6 +6,18 @@
 #include "utilityfn.h"
 #include "timefn.h"
 
+/*
+ * This programme will dump the stream saved from pfwd
+ * compile like this:
+ * gcc -Iplugins/writestream/ -o streaminspector plugins/writestream/timefn.c plugins/writestream/utilityfn.c plugins/writestream/streaminspector.c
+ * the executable should be built with pfwd when using ./configure:
+ * make
+ * Create a stream dump with pfwd:
+ * pfwd 0.0.0.0 8080 192.168.1.104 80
+ * Then inspect the output logfile:
+ * streaminspector 20220101T080023.log
+ */
+
 struct cmd_options_s {
 	uint64_t start_time;
 	uint64_t end_time;
