@@ -22,7 +22,7 @@ AC_CONFIG_FILES([Makefile])
 # Check for C compiler
 AC_PROG_CC
 # C++
-#AC_PROG_CXX 
+#AC_PROG_CXX
 # also see GNU autoconf archive
 # needed for xxx_CPPFLAGS in Makefile.am though it seems to work without
 #AC_PROG_CC_C_O
@@ -70,8 +70,8 @@ fi
 
 AC_MSG_CHECKING([whether to include hex dumping])
 AC_ARG_ENABLE(hexdumps,
-AC_HELP_STRING([--enable-hexdumps],[Enable Hex Dumps])
-AC_HELP_STRING([--disable-hexdumps],[Disable Hex Dumps]),
+AS_HELP_STRING([--enable-hexdumps],[Enable Hex Dumps])
+AS_HELP_STRING([--disable-hexdumps],[Disable Hex Dumps]),
 [ case "$enableval" in
   no)
        AC_MSG_RESULT(no)
@@ -89,8 +89,8 @@ AC_HELP_STRING([--disable-hexdumps],[Disable Hex Dumps]),
 
 AC_MSG_CHECKING([include support for plugins])
 AC_ARG_ENABLE(plugins,
-AC_HELP_STRING([--enable-plugins],[Enable plugin support])
-AC_HELP_STRING([--disable-plugins],[Disable plugin support]),
+AS_HELP_STRING([--enable-plugins],[Enable plugin support])
+AS_HELP_STRING([--disable-plugins],[Disable plugin support]),
 [ case "$enableval" in
   no)
        AC_MSG_RESULT(no)
@@ -108,8 +108,8 @@ AC_HELP_STRING([--disable-plugins],[Disable plugin support]),
 
 AC_MSG_CHECKING([include interactive terminal thread])
 AC_ARG_ENABLE(interactive,
-AC_HELP_STRING([--enable-interactive],[Enable interactive terminal thread])
-AC_HELP_STRING([--disable-interactive],[Disable interactive terminal thread]),
+AS_HELP_STRING([--enable-interactive],[Enable interactive terminal thread])
+AS_HELP_STRING([--disable-interactive],[Disable interactive terminal thread]),
 [ case "$enableval" in
   no)
        AC_MSG_RESULT(no)
