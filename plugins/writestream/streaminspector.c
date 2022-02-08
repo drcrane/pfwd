@@ -57,21 +57,42 @@ int main(int argc, char *argv[]) {
 	uint64_t parsed_time;
 	size_t block_size;
 	char origin;
+	size_t read_size;
 	char * buf, * buf2;
+	int res = 0;
 	buf = malloc(4096);
 	buf2 = malloc(32768);
 	while (!feof(file)) {
 		size_t bytes_read;
 		bytes_read = fread(&origin, 1, 1, file);
 		if (bytes_read != 1) {
+			if (ftell(file) == 0) {
+				fprintf(stderr, "seems like an empty file\n");
+				res = 1;
+			}
 			break;
 		}
-		fread(&parsed_time, sizeof(uint64_t), 1, file);
-		fread(&block_size, sizeof(size_t), 1, file);
-		fread(buf, block_size, 1, file);
+		read_size = fread(&parsed_time, 1, sizeof(uint64_t), file);
+		if (read_size != sizeof(uint64_t)) {
+			fprintf(stderr, "error reading time, offset %ld\n", ftell(file));
+			res = 1;
+			break;
+		}
+		read_size = fread(&block_size, 1, sizeof(size_t), file);
+		if (read_size != sizeof(uint64_t)) {
+			fprintf(stderr, "error reading block size header, offset %ld\n", ftell(file));
+			res = 1;
+			break;
+		}
+		read_size = fread(buf, 1, block_size, file);
+		if (read_size != block_size) {
+			fprintf(stderr, "error reading data block, offset %ld\n", ftell(file));
+			res = 1;
+			break;
+		}
 		if (parsed_time >= options->start_time && parsed_time < options->end_time) {
 			timefn_formattimefrommillis(buf2, parsed_time);
-			fprintf(stdout, "\n%c %s %lld\n", origin, buf2, block_size);
+			fprintf(stdout, "\n%c %s %lu\n", origin, buf2, block_size);
 			Utility_dumphex(buf2, buf, block_size);
 			fprintf(stdout, "%s", buf2);
 		}
@@ -79,6 +100,6 @@ int main(int argc, char *argv[]) {
 	free(buf);
 	free(buf2);
 	fclose(file);
-	return 0;
+	return res;
 }
 

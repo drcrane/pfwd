@@ -4,4 +4,5 @@
 #ifdef HAVE_CONFIG_H
 #include "myconfig.h"
 #endif
+#define USE_UTILITY_FN
 #include "timefn.c"

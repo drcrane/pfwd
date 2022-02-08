@@ -15,20 +15,18 @@ Example Invocations
 -------------------
 
 Listen on all IP addresses on port 5000 and forward any incomming connections to
-192.168.1.104 port 2030, simple:
+192.168.1.104 port 2030:
 
 	pfwd 0.0.0.0 5000 192.168.1.104 2030
 
-TODO List
----------
-
- * Have all activity on a single thread (the main thread)
- * Allow the programme to be daemonised
- * Fix autoconf warnings about `AC_HELP_STRING`
- * Don't build `streaminspector` when plugins are disabled
-
 Building
 --------
+
+Typically (assuming autoconf and automake are present) build like this:
+
+    autoreconf -i
+    ./configure --enable-plugins
+    make
 
 This project has been made to build with GNU autotools (though I do not like 
 them they are a defacto standard and they do work). I often find it useful to 
@@ -40,6 +38,14 @@ configure script which you may run, along with make, in the normal way. If you
 have cloned this from my repo you will need `autoconf` and `automake` installed 
 on your system as you will be required to execute `autoreconf -i` to make the 
 `configure` script.
+
+Options
+-------
+
+The below options may be mixed, there are no options that conflict.
+
+Hex Dump
+--------
 
 To configure the programme to dump all the relayed traffic in hex and printable
 ASCII invoke `configure` like this:
@@ -75,6 +81,14 @@ running:
 * `NOSND` Do not send data from server to client
 * `REC` Send data received from client to server (default)
 * `NOREC` Do not send data received from client to server
+
+TODO List
+---------
+
+ * Have all activity on a single thread (the main thread)
+ * Allow the programme to be daemonised
+ * Don't build `streaminspector` when plugins are disabled
+ * Build a library and link the programs with it
 
 References
 ----------

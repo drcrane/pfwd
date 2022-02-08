@@ -720,7 +720,7 @@ void Utility_hexToBytes(char* dst, char* src) {
 		}
 		dst++;
 	} while (1);
-	return 0;
+	return;
 }
 
 #ifdef __UNITTEST__
