@@ -205,7 +205,7 @@ void * service_thread(void * argsPtr) {
 		}
 
 		if (FD_ISSET(svcSock, &socks)) {
-			svcBytes = recv(svcSock, svcBuf, 4096, 0);
+			svcBytes = recv(svcSock, svcBuf, BUFFER_SIZE, 0);
 			if (svcBytes == 0) { break; }
 			if (svcBytes > 0) {
 				res = send(cliSock, svcBuf, svcBytes, 0);
@@ -223,7 +223,7 @@ void * service_thread(void * argsPtr) {
 		}
 
 		if (FD_ISSET(cliSock, &socks)) {
-			cliBytes = recv(cliSock, cliBuf, 4096, 0);
+			cliBytes = recv(cliSock, cliBuf, BUFFER_SIZE, 0);
 			if (cliBytes == 0) { break; }
 			if (cliBytes > 0) {
 				#ifdef PFWD_ENABLE_INTERACTIVE
