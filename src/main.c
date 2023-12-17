@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/select.h>
+#include <poll.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <signal.h>
@@ -144,7 +145,15 @@ error:
 
 void * service_thread(void * argsPtr) {
 	SOCKET svcSock = INVALID_SOCKET, cliSock = INVALID_SOCKET, highSock;
+#ifndef USE_POLL
 	fd_set socks;
+	struct timeval s_timeout;
+#endif
+#ifdef USE_POLL
+	struct pollfd socks[20];
+	uint32_t timeout;
+	int socks_count;
+#endif
 	pfwd_context_t * ctx;
 
 	int readsocks;
@@ -155,8 +164,6 @@ void * service_thread(void * argsPtr) {
 
 	size_t svcBytes;
 	size_t cliBytes;
-
-	struct timeval s_timeout;
 
 	ctx = (pfwd_context_t *)argsPtr;
 	svcSock = ((pfwd_context_t *)argsPtr)->svrSock;
@@ -180,6 +187,7 @@ void * service_thread(void * argsPtr) {
 	#endif
 
 	while (1) {
+		#ifndef USE_POLL
 		FD_ZERO(&socks);
 		#ifdef PFWD_ENABLE_INTERACTIVE
 		if (recv_data) {
@@ -203,7 +211,96 @@ void * service_thread(void * argsPtr) {
 			//fprintf(stdout, "."); fflush(stdout);
 			continue;
 		}
+		#endif // !USE_POLL
 
+		#ifdef USE_POLL
+		socks_count = 1;
+		memset(socks, 0 , sizeof(socks));
+		socks[0].fd = svcSock;
+		socks[0].events = POLLIN;
+		#ifdef PFWD_ENABLE_INTERACTIVE
+		if (recv_data) {
+			socks[1].fd = cliSock;
+			socks[1].events = POLLIN;
+			socks_count ++;
+		}
+		#else
+		socks[1].fd = cliSock;
+		socks[1].events = POLLIN;
+		socks_count ++;
+		#endif
+		timeout = 3 * 60 * 1000;
+		res = poll(socks, 2, timeout);
+		if (res == 0) {
+			continue;
+		}
+		if (res < 0) {
+			break;
+		}
+		res = 0;
+		for (int socks_idx = 0; socks_idx < 2; ++socks_idx) {
+			if (socks[socks_idx].revents == 0) {
+				continue;
+			}
+			if (socks[socks_idx].revents != POLLIN) {
+				res = 1;
+				break;
+			}
+			if (socks[socks_idx].fd == svcSock) {
+				svcBytes = recv(svcSock, svcBuf, BUFFER_SIZE, 0);
+				if (svcBytes == 0) { res = 11; break; }
+				if (svcBytes > 0) {
+					#ifdef PFWD_ENABLE_PLUGINS
+					if (ctx->onserverdata != NULL) {
+						ctx->onserverdata(ctx, svcBuf, svcBytes);
+					}
+					#endif
+					#ifdef PFWD_ENABLE_HEXDUMPS
+					dump_bytes(stdout, "C ", svcBuf, svcBytes);
+					#endif
+					res = send(cliSock, svcBuf, svcBytes, 0);
+					if (res <= 0) { res = 12; break; }
+					svcBytes = 0;
+				}
+				res = 0;
+			}
+			if (socks[socks_idx].fd == cliSock) {
+				cliBytes = recv(cliSock, cliBuf, BUFFER_SIZE, 0);
+				if (cliBytes == 0) { res = 21; break; }
+				if (cliBytes > 0) {
+					#ifdef PFWD_ENABLE_INTERACTIVE
+					if (send_data) {
+						res = send(svcSock, cliBuf, cliBytes, 0);
+					} else {
+						res = cliBytes;
+					}
+					#else
+					res = send(svcSock, cliBuf, cliBytes, 0);
+					#endif
+					#ifdef PFWD_ENABLE_PLUGINS
+					if (ctx->onclientdata != NULL) {
+						ctx->onclientdata(ctx, cliBuf, cliBytes);
+					}
+					#endif
+					#ifdef PFWD_ENABLE_HEXDUMPS
+					dump_bytes(stdout, "S ", cliBuf, cliBytes);
+					#endif
+					if (res <= 0) { res = 22; break; }
+					cliBytes = 0;
+				}
+				res = 0;
+			}
+			if (cliBytes < 0 || svcBytes < 0) {
+				res = 1;
+				break;
+			}
+		}
+		if (res) {
+			break;
+		}
+		#endif // USE_POLL
+
+		#ifndef USE_POLL
 		if (FD_ISSET(svcSock, &socks)) {
 			svcBytes = recv(svcSock, svcBuf, BUFFER_SIZE, 0);
 			if (svcBytes == 0) { break; }
@@ -251,6 +348,7 @@ void * service_thread(void * argsPtr) {
 		if (cliBytes == -1 || svcBytes == -1) {
 			break;
 		}
+		#endif // !USE_POLL
 	}
 	#ifdef PFWD_ENABLE_PLUGINS
 	if (ctx->ondisconnect != NULL) {

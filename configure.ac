@@ -125,6 +125,25 @@ AS_HELP_STRING([--disable-interactive],[Disable interactive terminal thread]),
        AC_MSG_RESULT(yes) ]
 )
 
+AC_MSG_CHECKING([use poll in Linux])
+AC_ARG_ENABLE(poll,
+AS_HELP_STRING([--enable-poll],[Enable Poll])
+AS_HELP_STRING([--disable-poll],[Disable Poll]),
+[ case "$enableval" in
+  no)
+       AC_MSG_RESULT(no)
+       AC_DEFINE(PFWD_DISABLE_USE_POLL, 1, [to disable poll support])
+       AC_SUBST(PFWD_DISABLE_USE_POLL, [1])
+       ;;
+  *)
+       AC_MSG_RESULT(yes)
+       AC_DEFINE(PFWD_ENABLE_USE_POLL, 1, [to enable poll support])
+       AC_SUBST(PFWD_ENABLE_USE_POLL, [1])
+       ;;
+  esac ],[
+       AC_MSG_RESULT(no) ]
+)
+
 # PKG_CHECK_MODULES([DEPS], [pthreads])
 
 AC_OUTPUT

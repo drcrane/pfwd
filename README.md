@@ -82,6 +82,14 @@ running:
 * `REC` Send data received from client to server (default)
 * `NOREC` Do not send data received from client to server
 
+Poll
+----
+
+`pfwd` can use `poll()` rather than `select()` in the client loop. This is the
+preferred methiod on Alpine Linux since the `select()` method sometimes fails.
+
+    ./configure --enable-poll
+
 TODO List
 ---------
 
@@ -89,6 +97,12 @@ TODO List
  * Allow the programme to be daemonised
  * Don't build `streaminspector` when plugins are disabled
  * Build a library and link the programs with it
+
+Bugs
+----
+
+For some reason this will crash on Alpine Linux (3.17) when the `select()`
+option is used (see Poll)
 
 References
 ----------

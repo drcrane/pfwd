@@ -1,7 +1,13 @@
 #ifndef MYCONFIG_H_
 #define MYCONFIG_H_
 
+#ifdef HAVE_CONFIG_H
 #include "config.h"
+#endif
+
+#ifdef PFWD_ENABLE_USE_POLL
+#define USE_POLL
+#endif
 
 #ifdef COMPILING_FOR_WINDOWS
 #define __COMPILE_FOR_WIN32
